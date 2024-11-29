@@ -60,14 +60,18 @@ public class TaskView extends JFrame {
         List<Task> tasks = controller.getTasksByCategory(category);
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
-        gbc.gridy = GridBagConstraints.RELATIVE;
+        gbc.gridy = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.NORTH;
         gbc.insets = new Insets(2, 2, 2, 2);
 
         for (Task task : tasks) {
             panel.add(createTaskPanel(task), gbc);
+            gbc.gridy++;
         }
+        gbc.weighty = 1.0;
+        panel.add(Box.createVerticalGlue(), gbc); // Add glue to push components to the top
         panel.revalidate();
         panel.repaint();
     }
