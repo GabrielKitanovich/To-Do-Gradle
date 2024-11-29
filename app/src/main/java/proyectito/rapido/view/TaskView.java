@@ -4,6 +4,7 @@ import proyectito.rapido.controller.TaskController;
 import proyectito.rapido.model.Task;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -29,10 +30,10 @@ public class TaskView extends JFrame {
         notImportantNotUrgentPanel = new JPanel(new GridBagLayout());
         notImportantUrgentPanel = new JPanel(new GridBagLayout());
 
-        add(createLabeledPanel("Importante, no urgente", importantNotUrgentPanel, "importante, no urgente"));
-        add(createLabeledPanel("Importante y urgente", importantUrgentPanel, "importante y urgente"));
-        add(createLabeledPanel("No importante, no urgente", notImportantNotUrgentPanel, "no importante, no urgente"));
-        add(createLabeledPanel("No importante y urgente", notImportantUrgentPanel, "no importante y urgente"));
+        add(createLabeledPanel("Importante | No Urgente", importantNotUrgentPanel, "importante, no urgente"));
+        add(createLabeledPanel("Importante | Urgente", importantUrgentPanel, "importante y urgente"));
+        add(createLabeledPanel("No Importante | No Urgente", notImportantNotUrgentPanel, "no importante, no urgente"));
+        add(createLabeledPanel("No Importante | Urgente", notImportantUrgentPanel, "no importante y urgente"));
 
         updateTaskAreas();
     }
@@ -78,10 +79,11 @@ public class TaskView extends JFrame {
 
     private JPanel createTaskPanel(Task task) {
         JPanel taskPanel = new JPanel(new BorderLayout());
-        Dimension taskSize = new Dimension(Integer.MAX_VALUE, 50);
+        Dimension taskSize = new Dimension(Integer.MAX_VALUE, 38);
         taskPanel.setPreferredSize(taskSize);
         taskPanel.setBorder(new LineBorder(Color.GRAY, 1));
         JLabel taskLabel = new JLabel(task.getDescription());
+        taskLabel.setBorder(new EmptyBorder(0, 20, 0, 0)); // Add left margin
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton checkButton = new JButton("✔");
         JButton deleteButton = new JButton("✖");
