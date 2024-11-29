@@ -1,4 +1,4 @@
-package main.java.proyectito.rapido.view;
+package proyectito.rapido.view;
 
 import proyectito.rapido.controller.TaskController;
 import proyectito.rapido.model.Task;

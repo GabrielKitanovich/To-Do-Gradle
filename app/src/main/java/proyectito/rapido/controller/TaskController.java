@@ -1,4 +1,4 @@
-package main.java.proyectito.rapido.controller;
+package proyectito.rapido.controller;
 
 import proyectito.rapido.model.Task;
 
@@ -37,6 +37,7 @@ public class TaskController {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void loadTasks() {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("tasks.dat"))) {
             tasks = (List<Task>) ois.readObject();

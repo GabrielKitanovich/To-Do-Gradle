@@ -1,4 +1,4 @@
-package main.java.proyectito.rapido.model;
+package proyectito.rapido.model;
 
 import java.io.Serializable;
 
