@@ -19,6 +19,11 @@ public class TaskController {
         saveTasks();
     }
 
+    public void removeTask(Task task) {
+        tasks.remove(task);
+        saveTasks();
+    }
+
     public List<Task> getTasksByCategory(String category) {
         List<Task> filteredTasks = new ArrayList<>();
         for (Task task : tasks) {

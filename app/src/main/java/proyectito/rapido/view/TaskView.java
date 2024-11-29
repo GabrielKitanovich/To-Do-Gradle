@@ -4,17 +4,17 @@ import proyectito.rapido.controller.TaskController;
 import proyectito.rapido.model.Task;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
 public class TaskView extends JFrame {
     private TaskController controller;
-    private JTextArea importantNotUrgentArea;
-    private JTextArea importantUrgentArea;
-    private JTextArea notImportantNotUrgentArea;
-    private JTextArea notImportantUrgentArea;
+    private JPanel importantNotUrgentPanel;
+    private JPanel importantUrgentPanel;
+    private JPanel notImportantNotUrgentPanel;
+    private JPanel notImportantUrgentPanel;
 
     public TaskView() {
         controller = new TaskController();
@@ -24,57 +24,97 @@ public class TaskView extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(2, 2));
 
-        importantNotUrgentArea = new JTextArea();
-        importantUrgentArea = new JTextArea();
-        notImportantNotUrgentArea = new JTextArea();
-        notImportantUrgentArea = new JTextArea();
+        importantNotUrgentPanel = new JPanel(new GridBagLayout());
+        importantUrgentPanel = new JPanel(new GridBagLayout());
+        notImportantNotUrgentPanel = new JPanel(new GridBagLayout());
+        notImportantUrgentPanel = new JPanel(new GridBagLayout());
 
-        add(new JScrollPane(importantNotUrgentArea));
-        add(new JScrollPane(importantUrgentArea));
-        add(new JScrollPane(notImportantNotUrgentArea));
-        add(new JScrollPane(notImportantUrgentArea));
-
-        JPanel inputPanel = new JPanel();
-        JTextField taskField = new JTextField(20);
-        JComboBox<String> categoryBox = new JComboBox<>(new String[]{
-                "importante, no urgente", "importante y urgente", "no importante, no urgente", "no importante y urgente"
-        });
-        JButton addButton = new JButton("Agregar");
-
-        inputPanel.add(taskField);
-        inputPanel.add(categoryBox);
-        inputPanel.add(addButton);
-
-        add(inputPanel, BorderLayout.SOUTH);
-
-        addButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String task = taskField.getText();
-                String category = (String) categoryBox.getSelectedItem();
-                controller.addTask(task, category);
-                taskField.setText("");
-                updateTaskAreas();
-            }
-        });
+        add(createLabeledPanel("Importante, no urgente", importantNotUrgentPanel, "importante, no urgente"));
+        add(createLabeledPanel("Importante y urgente", importantUrgentPanel, "importante y urgente"));
+        add(createLabeledPanel("No importante, no urgente", notImportantNotUrgentPanel, "no importante, no urgente"));
+        add(createLabeledPanel("No importante y urgente", notImportantUrgentPanel, "no importante y urgente"));
 
         updateTaskAreas();
     }
 
-    private void updateTaskAreas() {
-        importantNotUrgentArea.setText(getTasksAsString("importante, no urgente"));
-        importantUrgentArea.setText(getTasksAsString("importante y urgente"));
-        notImportantNotUrgentArea.setText(getTasksAsString("no importante, no urgente"));
-        notImportantUrgentArea.setText(getTasksAsString("no importante y urgente"));
+    private JPanel createLabeledPanel(String labelText, JPanel panel, String category) {
+        JPanel container = new JPanel(new BorderLayout());
+        JLabel label = new JLabel(labelText, JLabel.CENTER);
+        container.add(label, BorderLayout.NORTH);
+        JScrollPane scrollPane = new JScrollPane(panel);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        container.add(scrollPane, BorderLayout.CENTER);
+        container.add(createAddTaskButton(category), BorderLayout.SOUTH);
+        return container;
     }
 
-    private String getTasksAsString(String category) {
+    private void updateTaskAreas() {
+        updateTaskPanel(importantNotUrgentPanel, "importante, no urgente");
+        updateTaskPanel(importantUrgentPanel, "importante y urgente");
+        updateTaskPanel(notImportantNotUrgentPanel, "no importante, no urgente");
+        updateTaskPanel(notImportantUrgentPanel, "no importante y urgente");
+    }
+
+    private void updateTaskPanel(JPanel panel, String category) {
+        panel.removeAll();
         List<Task> tasks = controller.getTasksByCategory(category);
-        StringBuilder sb = new StringBuilder();
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = GridBagConstraints.RELATIVE;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+        gbc.insets = new Insets(2, 2, 2, 2);
+
         for (Task task : tasks) {
-            sb.append(task.getDescription()).append("\n");
+            panel.add(createTaskPanel(task), gbc);
         }
-        return sb.toString();
+        panel.revalidate();
+        panel.repaint();
+    }
+
+    private JPanel createTaskPanel(Task task) {
+        JPanel taskPanel = new JPanel(new BorderLayout());
+        Dimension taskSize = new Dimension(Integer.MAX_VALUE, 50);
+        taskPanel.setPreferredSize(taskSize);
+        taskPanel.setBorder(new LineBorder(Color.GRAY, 1));
+        JLabel taskLabel = new JLabel(task.getDescription());
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton checkButton = new JButton("✔");
+        JButton deleteButton = new JButton("✖");
+
+        ActionListener deleteAction = e -> {
+            controller.removeTask(task);
+            updateTaskAreas();
+        };
+
+        checkButton.addActionListener(deleteAction);
+        deleteButton.addActionListener(deleteAction);
+
+        buttonPanel.add(checkButton);
+        buttonPanel.add(deleteButton);
+        taskPanel.add(taskLabel, BorderLayout.CENTER);
+        taskPanel.add(buttonPanel, BorderLayout.EAST);
+
+        return taskPanel;
+    }
+
+    private JButton createAddTaskButton(String category) {
+        JButton addButton = new JButton("+");
+        addButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        addButton.addActionListener(e -> showAddTaskDialog(category));
+        return addButton;
+    }
+
+    private void showAddTaskDialog(String category) {
+        JTextField taskField = new JTextField(20);
+        int result = JOptionPane.showConfirmDialog(this, taskField, "Nueva Tarea", JOptionPane.OK_CANCEL_OPTION);
+        if (result == JOptionPane.OK_OPTION) {
+            String taskDescription = taskField.getText();
+            if (!taskDescription.isEmpty()) {
+                controller.addTask(taskDescription, category);
+                updateTaskAreas();
+            }
+        }
     }
 
     public static void launchApp() {
