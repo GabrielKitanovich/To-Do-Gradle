@@ -53,7 +53,16 @@ public class TaskController {
 
     @SuppressWarnings("unchecked")
     private void loadTasks() {
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream("tasks.dat"))) {
+        File file = new File("tasks.dat");
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+                return; // No tasks to load if the file was just created
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             tasks = (List<Task>) ois.readObject();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
