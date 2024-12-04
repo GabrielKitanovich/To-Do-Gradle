@@ -14,8 +14,17 @@ public class TaskController {
         loadTasks();
     }
 
-    public void addTask(String description, String category) {
-        tasks.add(new Task(description, category));
+    public void addTask(String name, String description, String category) {
+        tasks.add(new Task(name, description, category));
+        saveTasks();
+    }
+
+    public void addTask(String name, String description, String category, String[] checklistItems) {
+        Task task = new Task(name, description, category);
+        for (String item : checklistItems) {
+            task.addChecklistItem(item);
+        }
+        tasks.add(task);
         saveTasks();
     }
 
@@ -34,7 +43,7 @@ public class TaskController {
         return filteredTasks;
     }
 
-    private void saveTasks() {
+    public void saveTasks() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("tasks.dat"))) {
             oos.writeObject(tasks);
         } catch (IOException e) {

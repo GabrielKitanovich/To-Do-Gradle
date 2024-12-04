@@ -4,10 +4,7 @@ import proyectito.rapido.controller.TaskController;
 import proyectito.rapido.model.Task;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.List;
 
 public class TaskView extends JFrame {
@@ -39,24 +36,17 @@ public class TaskView extends JFrame {
     }
 
     private JPanel createLabeledPanel(String labelText, JPanel panel, String category) {
-        JPanel container = new JPanel(new BorderLayout());
-        JLabel label = new JLabel(labelText, JLabel.CENTER);
-        container.add(label, BorderLayout.NORTH);
-        JScrollPane scrollPane = new JScrollPane(panel);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        container.add(scrollPane, BorderLayout.CENTER);
-        container.add(createAddTaskButton(category), BorderLayout.SOUTH);
-        return container;
+        return TaskPanelFactory.createLabeledPanel(labelText, panel, category, this);
     }
 
-    private void updateTaskAreas() {
+    void updateTaskAreas() {
         updateTaskPanel(importantNotUrgentPanel, "importante, no urgente");
         updateTaskPanel(importantUrgentPanel, "importante y urgente");
         updateTaskPanel(notImportantNotUrgentPanel, "no importante, no urgente");
         updateTaskPanel(notImportantUrgentPanel, "no importante y urgente");
     }
 
-    private void updateTaskPanel(JPanel panel, String category) {
+    public void updateTaskPanel(JPanel panel, String category) {
         panel.removeAll();
         List<Task> tasks = controller.getTasksByCategory(category);
         GridBagConstraints gbc = new GridBagConstraints();
@@ -68,7 +58,7 @@ public class TaskView extends JFrame {
         gbc.insets = new Insets(2, 2, 2, 2);
 
         for (Task task : tasks) {
-            panel.add(createTaskPanel(task), gbc);
+            panel.add(TaskPanelFactory.createTaskPanel(task, controller, this), gbc);
             gbc.gridy++;
         }
         gbc.weighty = 1.0;
@@ -77,50 +67,12 @@ public class TaskView extends JFrame {
         panel.repaint();
     }
 
-    private JPanel createTaskPanel(Task task) {
-        JPanel taskPanel = new JPanel(new BorderLayout());
-        Dimension taskSize = new Dimension(Integer.MAX_VALUE, 38);
-        taskPanel.setPreferredSize(taskSize);
-        taskPanel.setBorder(new LineBorder(Color.GRAY, 1));
-        JLabel taskLabel = new JLabel(task.getDescription());
-        taskLabel.setBorder(new EmptyBorder(0, 20, 0, 0)); // Add left margin
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton checkButton = new JButton("✔");
-        JButton deleteButton = new JButton("✖");
-
-        ActionListener deleteAction = e -> {
-            controller.removeTask(task);
-            updateTaskAreas();
-        };
-
-        checkButton.addActionListener(deleteAction);
-        deleteButton.addActionListener(deleteAction);
-
-        buttonPanel.add(checkButton);
-        buttonPanel.add(deleteButton);
-        taskPanel.add(taskLabel, BorderLayout.CENTER);
-        taskPanel.add(buttonPanel, BorderLayout.EAST);
-
-        return taskPanel;
+    public void showTaskDetails(Task task) {
+        TaskDetailsDialog.showTaskDetails(task, this);
     }
 
-    private JButton createAddTaskButton(String category) {
-        JButton addButton = new JButton("+");
-        addButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        addButton.addActionListener(e -> showAddTaskDialog(category));
-        return addButton;
-    }
-
-    private void showAddTaskDialog(String category) {
-        JTextField taskField = new JTextField(20);
-        int result = JOptionPane.showConfirmDialog(this, taskField, "Nueva Tarea", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            String taskDescription = taskField.getText();
-            if (!taskDescription.isEmpty()) {
-                controller.addTask(taskDescription, category);
-                updateTaskAreas();
-            }
-        }
+    public void showAddTaskDialog(String category) {
+        AddTaskDialog.showAddTaskDialog(category, controller, this);
     }
 
     public static void launchApp() {
