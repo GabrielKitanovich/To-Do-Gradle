@@ -9,12 +9,14 @@ public class Task implements Serializable {
     private String description;
     private String category;
     private List<String> checklist;
+    private List<Boolean> checklistCompletion; // Track completion status
 
     public Task(String name, String description, String category) {
         this.name = name;
         this.description = description;
         this.category = category;
         this.checklist = new ArrayList<>();
+        this.checklistCompletion = new ArrayList<>(); // Initialize completion status list
     }
 
     public String getName() {
@@ -35,10 +37,23 @@ public class Task implements Serializable {
 
     public void addChecklistItem(String item) {
         checklist.add(item);
+        checklistCompletion.add(false); // Default to not completed
     }
 
     public void removeChecklistItem(String item) {
-        checklist.remove(item);
+        int index = checklist.indexOf(item);
+        if (index != -1) {
+            checklist.remove(index);
+            checklistCompletion.remove(index);
+        }
+    }
+
+    public boolean isItemCompleted(int index) {
+        return checklistCompletion.get(index);
+    }
+
+    public void setItemCompleted(int index, boolean completed) {
+        checklistCompletion.set(index, completed);
     }
 
     public void setName(String name) {
