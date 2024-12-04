@@ -1,9 +1,9 @@
-
 package proyectito.rapido.view;
 
 import proyectito.rapido.controller.TaskController;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +16,7 @@ public class AddTaskDialog {
         JTextArea descriptionField = new JTextArea(5, 20); // Increase the size of the description field
         descriptionField.setBorder(BorderFactory.createTitledBorder("Descripción"));
         
+        // Panel con layout para los ítems
         JPanel checklistPanel = new JPanel(new GridBagLayout());
         JScrollPane checklistScrollPane = new JScrollPane(checklistPanel);
         checklistScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -29,7 +30,9 @@ public class AddTaskDialog {
             String newItem = newItemField.getText();
             if (!newItem.isEmpty()) {
                 JPanel itemPanel = new JPanel(new BorderLayout());
+                itemPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY)); // Add visible border
                 JLabel itemLabel = new JLabel(newItem);
+                itemLabel.setBorder(new EmptyBorder(0, 10, 0, 0)); // Add left margin
                 JButton removeItemButton = new JButton("Eliminar");
                 removeItemButton.addActionListener(event -> {
                     checklistPanel.remove(itemPanel);
@@ -39,23 +42,27 @@ public class AddTaskDialog {
                 itemPanel.add(itemLabel, BorderLayout.CENTER);
                 itemPanel.add(removeItemButton, BorderLayout.EAST);
 
+                // Añadir ítem al panel
                 GridBagConstraints gbc = new GridBagConstraints();
                 gbc.gridx = 0;
-                gbc.gridy = checklistPanel.getComponentCount();
+                gbc.gridy = checklistPanel.getComponentCount(); // Índice correcto para nuevo ítem
                 gbc.fill = GridBagConstraints.HORIZONTAL;
-                gbc.weightx = 1.0;
-                gbc.insets = new Insets(2, 2, 2, 2);
+                gbc.weightx = 1.0; // Ocupar todo el ancho disponible
+                gbc.insets = new Insets(2, 2, 2, 2); // Espaciado entre ítems
                 checklistPanel.add(itemPanel, gbc);
+
                 checklistPanel.revalidate();
                 checklistPanel.repaint();
-                newItemField.setText("");
+                newItemField.setText(""); // Limpia el campo
             }
         });
 
+        // Panel para agregar nuevos ítems
         JPanel addItemPanel = new JPanel(new BorderLayout());
         addItemPanel.add(newItemField, BorderLayout.CENTER);
         addItemPanel.add(addItemButton, BorderLayout.EAST);
 
+        // Configuración del panel principal
         JPanel panel = new JPanel(new BorderLayout());
         JPanel fieldsPanel = new JPanel();
         fieldsPanel.setLayout(new BoxLayout(fieldsPanel, BoxLayout.Y_AXIS));
