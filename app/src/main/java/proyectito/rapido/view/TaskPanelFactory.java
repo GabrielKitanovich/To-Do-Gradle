@@ -7,7 +7,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.awt.event.ActionListener;
 
 public class TaskPanelFactory {
 
@@ -33,25 +32,6 @@ public class TaskPanelFactory {
         JLabel completionLabel = new JLabel(String.format("%.2f%%", task.getCompletionPercentage()));
         completionLabel.setBorder(new EmptyBorder(0, 10, 0, 0)); // Add left margin
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton checkButton = new JButton("✔");
-        JButton deleteButton = new JButton("✖");
-
-        checkButton.addActionListener(e -> {
-            taskView.showTaskDetails(task);
-            task.calculateCompletionPercentage(controller.getChecklistItemsByTask(task));
-            completionLabel.setText(String.format("%.2f%%", task.getCompletionPercentage()));
-            updateTaskPanelBackground(taskPanel, task.getCompletionPercentage());
-        });
-
-        deleteButton.addActionListener(e -> {
-            int response = JOptionPane.showConfirmDialog(taskView, "¿Estás seguro de que deseas eliminar esta tarea?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
-            if (response == JOptionPane.YES_OPTION) {
-                controller.removeTask(task);
-                taskView.updateTaskAreas();
-            }
-        });
-
         taskLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 taskView.showTaskDetails(task);
@@ -61,11 +41,8 @@ public class TaskPanelFactory {
             }
         });
 
-        buttonPanel.add(checkButton);
-        buttonPanel.add(deleteButton);
         taskPanel.add(taskLabel, BorderLayout.CENTER);
         taskPanel.add(completionLabel, BorderLayout.WEST);
-        taskPanel.add(buttonPanel, BorderLayout.EAST);
 
         updateTaskPanelBackground(taskPanel, task.getCompletionPercentage());
 

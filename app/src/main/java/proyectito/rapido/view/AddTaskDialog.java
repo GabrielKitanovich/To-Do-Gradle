@@ -4,6 +4,9 @@ import proyectito.rapido.controller.TaskController;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.PlainDocument;
 import java.awt.*;
 import java.util.UUID;
 
@@ -80,6 +83,30 @@ public class AddTaskDialog {
         fieldsPanel.add(nameField);
         fieldsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         fieldsPanel.add(new JScrollPane(descriptionField));
+        
+        JTextField timeField = new JTextField(10);
+        timeField.setBorder(BorderFactory.createTitledBorder("Tiempo"));
+        timeField.setDocument(new PlainDocument() {
+            @Override
+            public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
+                if (str == null) {
+                    return;
+                }
+                if (str.matches("\\d+")) { // Only allow digits
+                    super.insertString(offs, str, a);
+                }
+            }
+        });
+        String[] timeUnits = {"Horas", "Días", "Años"};
+        JComboBox<String> timeUnitComboBox = new JComboBox<>(timeUnits);
+
+        JPanel timePanel = new JPanel();
+        timePanel.add(timeField);
+        timePanel.add(timeUnitComboBox);
+
+        fieldsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        fieldsPanel.add(timePanel);
+
         panel.add(fieldsPanel, BorderLayout.NORTH);
         panel.add(checklistScrollPane, BorderLayout.CENTER);
         panel.add(addItemPanel, BorderLayout.SOUTH);
@@ -88,16 +115,27 @@ public class AddTaskDialog {
         if (result == JOptionPane.OK_OPTION) {
             String taskName = nameField.getText().trim();
             String taskDescription = descriptionField.getText().trim();
+            String timeValue = timeField.getText().trim();
+            String timeUnit = (String) timeUnitComboBox.getSelectedItem();
             if (!taskName.isEmpty() && !taskDescription.isEmpty()) {
                 String taskId = UUID.randomUUID().toString();
-                controller.addTask(taskId, taskName, taskDescription, category);
-                for (Component component : checklistPanel.getComponents()) {
-                    if (component instanceof JPanel) {
-                        for (Component subComponent : ((JPanel) component).getComponents()) {
-                            if (subComponent instanceof JLabel) {
-                                String itemDescription = ((JLabel) subComponent).getText();
-                                String itemColor = getColorString(((JLabel) subComponent).getBackground());
-                                controller.addChecklistItem(taskId, itemDescription, itemColor);
+                long creationTime = System.currentTimeMillis();
+                long duration = 0;
+                if (!timeValue.isEmpty() && timeUnit != null) {
+                    duration = parseDuration(timeValue, timeUnit);
+                }
+                controller.addTask(taskId, taskName, taskDescription, category, creationTime, duration);
+                if (checklistPanel.getComponentCount() == 0) {
+                    controller.addChecklistItem(taskId, "Completar la tarea", "Amarillo");
+                } else {
+                    for (Component component : checklistPanel.getComponents()) {
+                        if (component instanceof JPanel) {
+                            for (Component subComponent : ((JPanel) component).getComponents()) {
+                                if (subComponent instanceof JLabel) {
+                                    String itemDescription = ((JLabel) subComponent).getText();
+                                    String itemColor = getColorString(((JLabel) subComponent).getBackground());
+                                    controller.addChecklistItem(taskId, itemDescription, itemColor);
+                                }
                             }
                         }
                     }
@@ -118,6 +156,20 @@ public class AddTaskDialog {
             return "Rojo";
         } else {
             return "Blanco";
+        }
+    }
+
+    private static long parseDuration(String timeValue, String timeUnit) {
+        long value = Long.parseLong(timeValue);
+        switch (timeUnit) {
+            case "Horas":
+                return value * 3600000L; // 1 hour in milliseconds
+            case "Días":
+                return value * 86400000L; // 1 day in milliseconds
+            case "Años":
+                return value * 31536000000L; // 1 year in milliseconds
+            default:
+                return 0;
         }
     }
 }

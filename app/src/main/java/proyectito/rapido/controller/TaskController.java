@@ -17,8 +17,8 @@ public class TaskController {
         loadTasks();
     }
 
-    public void addTask(String id, String name, String description, String category) {
-        tasks.add(new Task(id, name, description, category));
+    public void addTask(String id, String name, String description, String category, long creationTime, long duration) {
+        tasks.add(new Task(id, name, description, category, creationTime, duration));
         saveTasks();
     }
 
