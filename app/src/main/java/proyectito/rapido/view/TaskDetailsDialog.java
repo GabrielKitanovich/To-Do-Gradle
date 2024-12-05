@@ -26,6 +26,9 @@ public class TaskDetailsDialog {
         checklistPanel.setLayout(new BoxLayout(checklistPanel, BoxLayout.Y_AXIS));
         checklistPanel.setBorder(BorderFactory.createTitledBorder("Checklist"));
 
+        JLabel completionLabel = new JLabel();
+        completionLabel.setBorder(BorderFactory.createTitledBorder("Porcentaje de Completado"));
+
         for (ChecklistItem item : checklistItems) {
             JPanel itemPanel = new JPanel(new BorderLayout());
             JLabel itemLabel = new JLabel(item.getDescription());
@@ -50,12 +53,19 @@ public class TaskDetailsDialog {
             }
             JCheckBox completedCheckBox = new JCheckBox();
             completedCheckBox.setSelected(item.isCompleted());
-            completedCheckBox.setEnabled(true);
+            completedCheckBox.addActionListener(e -> {
+                item.setCompleted(completedCheckBox.isSelected());
+                task.calculateCompletionPercentage(checklistItems);
+                completionLabel.setText("Porcentaje de Completado: " + String.format("%.2f", task.getCompletionPercentage()) + "%");
+            });
 
             itemPanel.add(itemLabel, BorderLayout.CENTER);
             itemPanel.add(completedCheckBox, BorderLayout.EAST);
             checklistPanel.add(itemPanel);
         }
+
+        task.calculateCompletionPercentage(checklistItems);
+        completionLabel.setText("Porcentaje de Completado: " + String.format("%.2f", task.getCompletionPercentage()) + "%");
 
         JPanel panel = new JPanel(new BorderLayout());
         JPanel fieldsPanel = new JPanel();
@@ -65,6 +75,8 @@ public class TaskDetailsDialog {
         fieldsPanel.add(new JScrollPane(descriptionField));
         fieldsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         fieldsPanel.add(new JScrollPane(checklistPanel));
+        fieldsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+        fieldsPanel.add(completionLabel);
 
         panel.add(fieldsPanel, BorderLayout.NORTH);
 
@@ -73,7 +85,8 @@ public class TaskDetailsDialog {
             for (int i = 0; i < checklistItems.size(); i++) {
                 checklistItems.get(i).setCompleted(((JCheckBox) ((JPanel) checklistPanel.getComponent(i)).getComponent(1)).isSelected()); // Save the completion status
             }
-            controller.saveTasks(); // Save the updated checklist items
+            task.calculateCompletionPercentage(checklistItems); // Recalculate completion percentage
+            controller.saveTasks(); // Save the updated checklist items and task
         }
     }
 }

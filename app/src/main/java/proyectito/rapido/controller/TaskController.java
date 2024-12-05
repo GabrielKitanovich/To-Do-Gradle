@@ -6,7 +6,6 @@ import proyectito.rapido.model.ChecklistItem;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class TaskController {
     private List<Task> tasks;
