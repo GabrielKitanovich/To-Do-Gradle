@@ -68,7 +68,7 @@ public class TaskView extends JFrame {
     }
 
     public void showTaskDetails(Task task) {
-        TaskDetailsDialog.showTaskDetails(task, this);
+        TaskDetailsDialog.showTaskDetails(task, controller, this);
     }
 
     public void showAddTaskDialog(String category) {

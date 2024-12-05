@@ -1,13 +1,16 @@
 package proyectito.rapido.view;
 
 import proyectito.rapido.model.Task;
+import proyectito.rapido.model.ChecklistItem;
+import proyectito.rapido.controller.TaskController;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class TaskDetailsDialog {
 
-    public static void showTaskDetails(Task task, JFrame parentFrame) {
+    public static void showTaskDetails(Task task, TaskController controller, JFrame parentFrame) {
         JTextField nameField = new JTextField(task.getName(), 20);
         nameField.setEditable(false);
         nameField.setBorder(BorderFactory.createTitledBorder("Nombre"));
@@ -18,20 +21,41 @@ public class TaskDetailsDialog {
         descriptionField.setBorder(BorderFactory.createTitledBorder("Descripción"));
         descriptionField.setFocusable(false); // Make the field completely non-interactive
 
-        String[] columnNames = {"Item", "Completado"};
-        Object[][] data = new Object[task.getChecklist().size()][2];
-        for (int i = 0; i < task.getChecklist().size(); i++) {
-            data[i][0] = task.getChecklist().get(i);
-            data[i][1] = task.isItemCompleted(i); // Get the completion status from the task
-        }
-        JTable checklistTable = new JTable(data, columnNames);
-        checklistTable.getColumnModel().getColumn(1).setCellRenderer(checklistTable.getDefaultRenderer(Boolean.class));
-        checklistTable.getColumnModel().getColumn(1).setCellEditor(checklistTable.getDefaultEditor(Boolean.class));
+        List<ChecklistItem> checklistItems = controller.getChecklistItemsByTask(task);
+        JPanel checklistPanel = new JPanel();
+        checklistPanel.setLayout(new BoxLayout(checklistPanel, BoxLayout.Y_AXIS));
+        checklistPanel.setBorder(BorderFactory.createTitledBorder("Checklist"));
 
-        // Adjust the table height based on the number of items
-        int rowHeight = checklistTable.getRowHeight();
-        int tableHeight = rowHeight * task.getChecklist().size();
-        checklistTable.setPreferredScrollableViewportSize(new Dimension(checklistTable.getPreferredScrollableViewportSize().width, tableHeight));
+        for (ChecklistItem item : checklistItems) {
+            JPanel itemPanel = new JPanel(new BorderLayout());
+            JLabel itemLabel = new JLabel(item.getDescription());
+            itemLabel.setOpaque(true);
+            switch (item.getColor()) {
+                case "Verde":
+                    itemPanel.setBackground(Color.GREEN);
+                    itemLabel.setBackground(Color.GREEN);
+                    break;
+                case "Amarillo":
+                    itemPanel.setBackground(Color.YELLOW);
+                    itemLabel.setBackground(Color.YELLOW);
+                    break;
+                case "Rojo":
+                    itemPanel.setBackground(Color.RED);
+                    itemLabel.setBackground(Color.RED);
+                    break;
+                default:
+                    itemPanel.setBackground(Color.WHITE);
+                    itemLabel.setBackground(Color.WHITE);
+                    break;
+            }
+            JCheckBox completedCheckBox = new JCheckBox();
+            completedCheckBox.setSelected(item.isCompleted());
+            completedCheckBox.setEnabled(true);
+
+            itemPanel.add(itemLabel, BorderLayout.CENTER);
+            itemPanel.add(completedCheckBox, BorderLayout.EAST);
+            checklistPanel.add(itemPanel);
+        }
 
         JPanel panel = new JPanel(new BorderLayout());
         JPanel fieldsPanel = new JPanel();
@@ -40,15 +64,16 @@ public class TaskDetailsDialog {
         fieldsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
         fieldsPanel.add(new JScrollPane(descriptionField));
         fieldsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        fieldsPanel.add(new JScrollPane(checklistTable));
+        fieldsPanel.add(new JScrollPane(checklistPanel));
 
         panel.add(fieldsPanel, BorderLayout.NORTH);
 
         int result = JOptionPane.showConfirmDialog(parentFrame, panel, "Detalles de la Tarea", JOptionPane.OK_CANCEL_OPTION);
         if (result == JOptionPane.OK_OPTION) {
-            for (int i = 0; i < task.getChecklist().size(); i++) {
-                task.setItemCompleted(i, (Boolean) checklistTable.getValueAt(i, 1)); // Save the completion status
+            for (int i = 0; i < checklistItems.size(); i++) {
+                checklistItems.get(i).setCompleted(((JCheckBox) ((JPanel) checklistPanel.getComponent(i)).getComponent(1)).isSelected()); // Save the completion status
             }
+            controller.saveTasks(); // Save the updated checklist items
         }
     }
 }
