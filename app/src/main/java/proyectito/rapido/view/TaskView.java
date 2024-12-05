@@ -21,21 +21,29 @@ public class TaskView extends JFrame {
         setTitle("To-Do List");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(2, 2));
+        setLayout(new BorderLayout());
 
+        JPanel mainPanel = new JPanel(new GridLayout(2, 2));
         importantNotUrgentPanel = new JPanel(new GridBagLayout());
         importantUrgentPanel = new JPanel(new GridBagLayout());
         notImportantNotUrgentPanel = new JPanel(new GridBagLayout());
         notImportantUrgentPanel = new JPanel(new GridBagLayout());
 
-        add(createLabeledPanel("Importante | No Urgente", importantNotUrgentPanel, "importante, no urgente"));
-        add(createLabeledPanel("Importante | Urgente", importantUrgentPanel, "importante y urgente"));
-        add(createLabeledPanel("No Importante | No Urgente", notImportantNotUrgentPanel, "no importante, no urgente"));
-        add(createLabeledPanel("No Importante | Urgente", notImportantUrgentPanel, "no importante y urgente"));
+        mainPanel.add(createLabeledPanel("Importante | No Urgente", importantNotUrgentPanel, "importante, no urgente"));
+        mainPanel.add(createLabeledPanel("Importante | Urgente", importantUrgentPanel, "importante y urgente"));
+        mainPanel.add(createLabeledPanel("No Importante | No Urgente", notImportantNotUrgentPanel, "no importante, no urgente"));
+        mainPanel.add(createLabeledPanel("No Importante | Urgente", notImportantUrgentPanel, "no importante y urgente"));
 
         JButton viewCompletedTasksButton = new JButton("Ver Tareas Completadas");
         viewCompletedTasksButton.addActionListener(e -> showCompletedTasksDialog());
-        add(viewCompletedTasksButton);
+
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.add(viewCompletedTasksButton, BorderLayout.EAST);
+
+        add(mainPanel, BorderLayout.CENTER);
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        setLocationRelativeTo(null); // Center the main window on the screen
 
         updateTaskAreas();
     }
@@ -127,6 +135,7 @@ public class TaskView extends JFrame {
         gbc.weighty = 1.0;
         completedTasksPanel.add(Box.createVerticalGlue(), gbc); // Add glue to push components to the top
 
+        dialog.setLocationRelativeTo(this); // Center the dialog on the parent frame
         dialog.setVisible(true);
     }
 

@@ -112,6 +112,10 @@ public class AddTaskDialog {
         panel.add(addItemPanel, BorderLayout.SOUTH);
 
         int result = JOptionPane.showConfirmDialog(taskView, panel, "Nueva Tarea", JOptionPane.OK_CANCEL_OPTION);
+        JDialog dialog = (JDialog) SwingUtilities.getWindowAncestor(panel);
+        if (dialog != null) {
+            dialog.setLocationRelativeTo(taskView); // Center the dialog on the parent frame
+        }
         if (result == JOptionPane.OK_OPTION) {
             String taskName = nameField.getText().trim();
             String taskDescription = descriptionField.getText().trim();

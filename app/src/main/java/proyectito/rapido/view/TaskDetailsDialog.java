@@ -109,6 +109,10 @@ public class TaskDetailsDialog {
         panel.add(fieldsPanel, BorderLayout.NORTH);
 
         int result = JOptionPane.showConfirmDialog(parentFrame, panel, "Detalles de la Tarea", JOptionPane.OK_CANCEL_OPTION);
+        JDialog dialog = (JDialog) SwingUtilities.getWindowAncestor(panel);
+        if (dialog != null) {
+            dialog.setLocationRelativeTo(parentFrame); // Center the dialog on the parent frame
+        }
         if (result == JOptionPane.OK_OPTION) {
             for (int i = 0; i < checklistItems.size(); i++) {
                 checklistItems.get(i).setCompleted(((JCheckBox) ((JPanel) checklistPanel.getComponent(i)).getComponent(1)).isSelected()); // Save the completion status

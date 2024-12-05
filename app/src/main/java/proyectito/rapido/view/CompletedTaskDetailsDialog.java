@@ -1,4 +1,3 @@
-
 package proyectito.rapido.view;
 
 import proyectito.rapido.model.Task;
@@ -93,6 +92,10 @@ public class CompletedTaskDetailsDialog {
         panel.add(fieldsPanel, BorderLayout.NORTH);
 
         JOptionPane.showMessageDialog(parentFrame, panel, "Detalles de la Tarea Completada", JOptionPane.INFORMATION_MESSAGE);
+        JDialog dialog = (JDialog) SwingUtilities.getWindowAncestor(panel);
+        if (dialog != null) {
+            dialog.setLocationRelativeTo(parentFrame); // Center the dialog on the parent frame
+        }
     }
 
     private static String formatTime(long timeInMillis) {
