@@ -10,10 +10,12 @@ import java.util.List;
 public class TaskController {
     private List<Task> tasks;
     private List<ChecklistItem> checklistItems;
+    private List<Task> completedTasks;
 
     public TaskController() {
         tasks = new ArrayList<>();
         checklistItems = new ArrayList<>();
+        completedTasks = new ArrayList<>();
         loadTasks();
     }
 
@@ -31,6 +33,16 @@ public class TaskController {
         tasks.remove(task);
         checklistItems.removeIf(item -> item.getTaskId().equals(task.getId())); // Remove associated checklist items
         saveTasks();
+    }
+
+    public void completeTask(Task task) {
+        tasks.remove(task);
+        completedTasks.add(task);
+        saveTasks();
+    }
+
+    public List<Task> getCompletedTasks() {
+        return completedTasks;
     }
 
     public void removeChecklistItem(ChecklistItem item) {
@@ -62,6 +74,7 @@ public class TaskController {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("tasks.dat"))) {
             oos.writeObject(tasks);
             oos.writeObject(checklistItems);
+            oos.writeObject(completedTasks);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -81,11 +94,19 @@ public class TaskController {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             tasks = (List<Task>) ois.readObject();
             checklistItems = (List<ChecklistItem>) ois.readObject();
+            completedTasks = (List<Task>) ois.readObject();
+        } catch (EOFException e) {
+            // Handle the case where the file might not contain all the expected objects
+            tasks = tasks == null ? new ArrayList<>() : tasks;
+            checklistItems = checklistItems == null ? new ArrayList<>() : checklistItems;
+            completedTasks = completedTasks == null ? new ArrayList<>() : completedTasks;
+            saveTasks();
         } catch (InvalidClassException e) {
             System.err.println("Class version mismatch, recreating tasks.dat file.");
             file.delete();
             tasks = new ArrayList<>();
             checklistItems = new ArrayList<>();
+            completedTasks = new ArrayList<>();
             saveTasks();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();

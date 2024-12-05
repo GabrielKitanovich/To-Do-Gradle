@@ -55,6 +55,29 @@ public class TaskPanelFactory {
         return taskPanel;
     }
 
+    public static JPanel createCompletedTaskPanel(Task task, TaskController controller, TaskView taskView) {
+        JPanel taskPanel = new JPanel(new BorderLayout());
+        Dimension taskSize = new Dimension(Integer.MAX_VALUE, 38);
+        taskPanel.setPreferredSize(taskSize);
+        taskPanel.setBorder(new LineBorder(Color.GRAY, 1));
+        JLabel taskLabel = new JLabel(task.getName());
+        taskLabel.setBorder(new EmptyBorder(0, 20, 0, 0)); // Add left margin
+
+        JLabel completionLabel = new JLabel(String.format("%.2f%%", task.getCompletionPercentage()));
+        completionLabel.setBorder(new EmptyBorder(0, 10, 0, 0)); // Add left margin
+
+        taskLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                CompletedTaskDetailsDialog.showTaskDetails(task, controller, taskView);
+            }
+        });
+
+        taskPanel.add(taskLabel, BorderLayout.CENTER);
+        taskPanel.add(completionLabel, BorderLayout.WEST);
+
+        return taskPanel;
+    }
+
     private static void updateTaskPanelBackground(JPanel taskPanel, double completionPercentage) {
         int greenValue = (int) (255 * (completionPercentage / 100));
         int grayValue = 255 - greenValue;

@@ -1,3 +1,4 @@
+
 package proyectito.rapido.view;
 
 import proyectito.rapido.model.Task;
@@ -8,7 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public class TaskDetailsDialog {
+public class CompletedTaskDetailsDialog {
 
     public static void showTaskDetails(Task task, TaskController controller, JFrame parentFrame) {
         JTextField nameField = new JTextField(task.getName(), 20);
@@ -53,11 +54,7 @@ public class TaskDetailsDialog {
             }
             JCheckBox completedCheckBox = new JCheckBox();
             completedCheckBox.setSelected(item.isCompleted());
-            completedCheckBox.addActionListener(e -> {
-                item.setCompleted(completedCheckBox.isSelected());
-                task.calculateCompletionPercentage(checklistItems);
-                completionLabel.setText("Porcentaje de Completado: " + String.format("%.2f", task.getCompletionPercentage()) + "%");
-            });
+            completedCheckBox.setEnabled(false); // Make the checkbox non-interactive
 
             itemPanel.add(itemLabel, BorderLayout.CENTER);
             itemPanel.add(completedCheckBox, BorderLayout.EAST);
@@ -93,37 +90,9 @@ public class TaskDetailsDialog {
             fieldsPanel.add(endTimeLabel);
         }
 
-        JButton deleteButton = new JButton("Eliminar Tarea");
-        deleteButton.addActionListener(e -> {
-            int response = JOptionPane.showConfirmDialog(parentFrame, "¿Estás seguro de que deseas eliminar esta tarea?", "Confirmar eliminación", JOptionPane.YES_NO_OPTION);
-            if (response == JOptionPane.YES_OPTION) {
-                controller.removeTask(task);
-                ((TaskView) parentFrame).updateTaskAreas();
-                SwingUtilities.getWindowAncestor(deleteButton).dispose(); // Close the dialog
-            }
-        });
-
-        fieldsPanel.add(Box.createRigidArea(new Dimension(0, 10)));
-        fieldsPanel.add(deleteButton);
-
         panel.add(fieldsPanel, BorderLayout.NORTH);
 
-        int result = JOptionPane.showConfirmDialog(parentFrame, panel, "Detalles de la Tarea", JOptionPane.OK_CANCEL_OPTION);
-        if (result == JOptionPane.OK_OPTION) {
-            for (int i = 0; i < checklistItems.size(); i++) {
-                checklistItems.get(i).setCompleted(((JCheckBox) ((JPanel) checklistPanel.getComponent(i)).getComponent(1)).isSelected()); // Save the completion status
-            }
-            task.calculateCompletionPercentage(checklistItems); // Recalculate completion percentage
-            controller.saveTasks(); // Save the updated checklist items and task
-
-            if (task.getCompletionPercentage() == 100.0) {
-                int completeResponse = JOptionPane.showConfirmDialog(parentFrame, "La tarea está al 100%. ¿Deseas marcarla como completada y moverla a la lista de tareas completadas?", "Completar Tarea", JOptionPane.YES_NO_OPTION);
-                if (completeResponse == JOptionPane.YES_OPTION) {
-                    controller.completeTask(task);
-                    ((TaskView) parentFrame).updateTaskAreas();
-                }
-            }
-        }
+        JOptionPane.showMessageDialog(parentFrame, panel, "Detalles de la Tarea Completada", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private static String formatTime(long timeInMillis) {
