@@ -5,6 +5,8 @@ import proyectito.rapido.view.TaskView;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class App {
     private static TrayIcon trayIcon;
@@ -21,7 +23,7 @@ public class App {
             try {
                 image = Toolkit.getDefaultToolkit().getImage(App.class.getResource("/icon.png"));
             } catch (Exception e) {
-                System.err.println("Icon image not found. Please ensure the icon.png file is in the resources folder. 1");
+                System.err.println("Icon image not found. Please ensure the icon.png file is in the resources folder.");
                 return;
             }
             PopupMenu popup = new PopupMenu();
@@ -47,6 +49,16 @@ public class App {
 
             trayIcon = new TrayIcon(image, "Task App", popup);
             trayIcon.setImageAutoSize(true);
+            trayIcon.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getButton() == MouseEvent.BUTTON1) { // Left-click
+                        TaskView.getInstance().setVisible(true);
+                        TaskView.getInstance().setExtendedState(Frame.NORMAL);
+                        tray.remove(trayIcon);
+                    }
+                }
+            });
 
             try {
                 tray.add(trayIcon);
