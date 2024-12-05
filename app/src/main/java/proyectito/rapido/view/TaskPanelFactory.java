@@ -32,17 +32,23 @@ public class TaskPanelFactory {
         JLabel completionLabel = new JLabel(String.format("%.2f%%", task.getCompletionPercentage()));
         completionLabel.setBorder(new EmptyBorder(0, 10, 0, 0)); // Add left margin
 
+        JLabel timeLabel = new JLabel();
+        timeLabel.setBorder(new EmptyBorder(0, 0, 0, 10)); // Add right margin
+        updateTimeLabel(timeLabel, task);
+
         taskLabel.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 taskView.showTaskDetails(task);
                 task.calculateCompletionPercentage(controller.getChecklistItemsByTask(task));
                 completionLabel.setText(String.format("%.2f%%", task.getCompletionPercentage()));
                 updateTaskPanelBackground(taskPanel, task.getCompletionPercentage());
+                updateTimeLabel(timeLabel, task);
             }
         });
 
         taskPanel.add(taskLabel, BorderLayout.CENTER);
         taskPanel.add(completionLabel, BorderLayout.WEST);
+        taskPanel.add(timeLabel, BorderLayout.EAST);
 
         updateTaskPanelBackground(taskPanel, task.getCompletionPercentage());
 
@@ -60,5 +66,43 @@ public class TaskPanelFactory {
         addButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         addButton.addActionListener(e -> taskView.showAddTaskDialog(category));
         return addButton;
+    }
+
+    private static void updateTimeLabel(JLabel timeLabel, Task task) {
+        long currentTime = System.currentTimeMillis();
+        long endTime = task.getCreationTime() + task.getDuration();
+        long remainingTime = endTime - currentTime;
+
+        if (task.getDuration() <= 0) {
+            timeLabel.setText("");
+        } else if (remainingTime <= 0) {
+            timeLabel.setText("Tiempo finalizado");
+        } else {
+            timeLabel.setText(formatRemainingTime(remainingTime));
+            timeLabel.setIcon(new ImageIcon("path/to/clock/icon.png")); // Replace with the actual path to the clock icon
+        }
+    }
+
+    private static String formatRemainingTime(long remainingTime) {
+        long seconds = remainingTime / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        long days = hours / 24;
+        long months = days / 30;
+        long years = days / 365;
+
+        if (years > 0) {
+            return years + " años";
+        } else if (months > 0) {
+            return months + " meses";
+        } else if (days > 0) {
+            return days + " días";
+        } else if (hours > 0) {
+            return hours + " horas";
+        } else if (minutes > 0) {
+            return minutes + " minutos";
+        } else {
+            return seconds + " segundos";
+        }
     }
 }
