@@ -29,18 +29,26 @@ dependencies {
 // Apply a specific Java toolchain to ease working on different environments.
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        
+        languageVersion = JavaLanguageVersion.of(17) // Cambia a una versión compatible como Java 17
     }
 }
 
 application {
     // Define the main class for the application.
     mainClass = 'proyectito.rapido.App'
+    mainModule = 'proyectito.rapido'
 }
 
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
+}
+
+tasks.named('clean') {
+    doFirst {
+        delete fileTree(dir: 'build/libs', include: '*.jar')
+    }
 }
 
 jlink {
@@ -49,7 +57,7 @@ jlink {
         name = 'ProyectitoRapido'
     }
     jpackage {
-        imageOptions = ['--icon', 'src/main/resources/icon.png']
+        imageOptions = ['--icon', 'src/main/resources/icon.ico'] // Asegúrate de que el icono sea un archivo .ico
         installerOptions = ['--win-menu', '--win-shortcut']
         installerType = 'exe'
     }

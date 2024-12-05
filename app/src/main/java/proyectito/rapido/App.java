@@ -59,7 +59,12 @@ public class App {
                     }
                 }
             });
+        }
+    }
 
+    public static void addTrayIcon() {
+        if (SystemTray.isSupported()) {
+            SystemTray tray = SystemTray.getSystemTray();
             try {
                 tray.add(trayIcon);
             } catch (AWTException e) {

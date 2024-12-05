@@ -64,7 +64,7 @@ public class TaskView extends JFrame {
             public void windowStateChanged(WindowEvent e) {
                 if (e.getNewState() == ICONIFIED) {
                     setVisible(false);
-                    App.setupSystemTray();
+                    App.addTrayIcon();
                 }
             }
         });
