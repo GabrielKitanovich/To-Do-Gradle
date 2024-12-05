@@ -2,12 +2,17 @@ package proyectito.rapido.view;
 
 import proyectito.rapido.controller.TaskController;
 import proyectito.rapido.model.Task;
+import proyectito.rapido.App;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowStateListener;
 import java.util.List;
 
 public class TaskView extends JFrame {
+    private static TaskView instance;
     private TaskController controller;
     private JPanel importantNotUrgentPanel;
     private JPanel importantUrgentPanel;
@@ -22,6 +27,14 @@ public class TaskView extends JFrame {
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+
+        // Set the taskbar icon
+        try {
+            Image icon = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icon.png"));
+            setIconImage(icon);
+        } catch (Exception e) {
+            System.err.println("Icon image not found. Please ensure the icon.png file is in the resources folder. 2");
+        }
 
         JPanel mainPanel = new JPanel(new GridLayout(2, 2));
         importantNotUrgentPanel = new JPanel(new GridBagLayout());
@@ -46,6 +59,21 @@ public class TaskView extends JFrame {
         setLocationRelativeTo(null); // Center the main window on the screen
 
         updateTaskAreas();
+
+        addWindowStateListener(new WindowStateListener() {
+            public void windowStateChanged(WindowEvent e) {
+                if (e.getNewState() == ICONIFIED) {
+                    setVisible(false);
+                    App.setupSystemTray();
+                }
+            }
+        });
+
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                System.exit(0);
+            }
+        });
     }
 
     private JPanel createLabeledPanel(String labelText, JPanel panel, String category) {
@@ -144,5 +172,12 @@ public class TaskView extends JFrame {
             TaskView app = new TaskView();
             app.setVisible(true);
         });
+    }
+
+    public static TaskView getInstance() {
+        if (instance == null) {
+            instance = new TaskView();
+        }
+        return instance;
     }
 }
